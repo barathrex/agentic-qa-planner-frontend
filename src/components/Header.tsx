@@ -18,6 +18,7 @@ import {
   ListItemText,
   Divider,
 } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import LogoutIcon from '@mui/icons-material/Logout';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -40,7 +41,6 @@ export default function Header() {
         backgroundColor: '#FFFFFF',
         borderBottom: '1px solid #E2E8F0',
         color: '#1E293B',
-        zIndex: (theme) => theme.zIndex.drawer + 1,
       }}
     >
       <Container maxWidth="xl">
@@ -123,44 +123,67 @@ export default function Header() {
             </IconButton>
           )}
 
-          {/* Mobile Navigation Drawer */}
+          {/* Mobile Navigation Drawer — rendered outside AppBar stacking context */}
           <Drawer
             anchor="right"
             open={mobileOpen}
             onClose={() => setMobileOpen(false)}
-            PaperProps={{ sx: { width: 260, p: 2 } }}
+            ModalProps={{ keepMounted: true }}
+            PaperProps={{
+              sx: {
+                width: 280,
+                p: 0,
+                borderRadius: '12px 0 0 12px',
+              },
+            }}
           >
-            <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 2, px: 1 }}>
-              <Avatar sx={{ width: 36, height: 36, bgcolor: '#2563EB' }}>
-                {developerName?.charAt(0)}
-              </Avatar>
-              <Box>
-                <Typography variant="subtitle2" fontWeight={700}>
-                  {developerName}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  Logged In Developer
-                </Typography>
-              </Box>
-            </Stack>
-            <Divider sx={{ mb: 2 }} />
+            {/* Drawer Header */}
+            <Box
+              sx={{
+                background: 'linear-gradient(135deg, #2563EB 0%, #1E40AF 100%)',
+                p: 2.5,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <Stack direction="row" spacing={1.5} alignItems="center">
+                <Avatar sx={{ width: 44, height: 44, bgcolor: 'rgba(255,255,255,0.25)', fontWeight: 700, fontSize: '1.1rem' }}>
+                  {developerName?.charAt(0).toUpperCase()}
+                </Avatar>
+                <Box>
+                  <Typography variant="subtitle1" fontWeight={700} color="#fff">
+                    {developerName}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.75)' }}>
+                    Logged In Developer
+                  </Typography>
+                </Box>
+              </Stack>
+              <IconButton size="small" onClick={() => setMobileOpen(false)} sx={{ color: '#fff' }}>
+                <CloseIcon />
+              </IconButton>
+            </Box>
 
-            <List>
+            <Divider />
+
+            <List sx={{ px: 1.5, pt: 1.5 }}>
               <ListItem disablePadding>
                 <ListItemButton
                   onClick={() => {
                     navigate('/');
                     setMobileOpen(false);
                   }}
+                  sx={{ borderRadius: 2, mb: 0.5 }}
                 >
-                  <ListItemIcon>
+                  <ListItemIcon sx={{ minWidth: 36 }}>
                     <DashboardIcon color="primary" />
                   </ListItemIcon>
-                  <ListItemText primary="Dashboard" />
+                  <ListItemText primary="Dashboard" primaryTypographyProps={{ fontWeight: 600 }} />
                 </ListItemButton>
               </ListItem>
 
-              <ListItem disablePadding sx={{ mt: 2 }}>
+              <ListItem disablePadding sx={{ mt: 1 }}>
                 <ListItemButton
                   onClick={() => {
                     logout();
@@ -169,10 +192,10 @@ export default function Header() {
                   }}
                   sx={{ borderRadius: 2, color: 'error.main' }}
                 >
-                  <ListItemIcon>
+                  <ListItemIcon sx={{ minWidth: 36 }}>
                     <LogoutIcon color="error" />
                   </ListItemIcon>
-                  <ListItemText primary="Logout" />
+                  <ListItemText primary="Logout" primaryTypographyProps={{ fontWeight: 600, color: 'error.main' }} />
                 </ListItemButton>
               </ListItem>
             </List>

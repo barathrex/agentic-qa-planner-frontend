@@ -204,7 +204,7 @@ export default function QaPlanPage() {
     <Box sx={{ pb: 6 }}>
       {/* Top Header */}
       <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ md: 'center' }} spacing={2} sx={{ mb: 3 }}>
-        <Box direction="row" alignItems="center" display="flex" gap={1.5}>
+        <Stack direction="row" alignItems="center" spacing={1.5}>
           <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/')} color="inherit">
             Back
           </Button>

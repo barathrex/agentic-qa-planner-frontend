@@ -108,7 +108,6 @@ export default function LoginPage() {
                   fullWidth
                   value={developerName}
                   onChange={(e) => setDeveloperName(e.target.value)}
-                  placeholder="e.g. Barath or Rishabh"
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -124,7 +123,6 @@ export default function LoginPage() {
                   fullWidth
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -153,28 +151,6 @@ export default function LoginPage() {
                 </Button>
               </Stack>
             </form>
-
-            <Box sx={{ width: '100%', pt: 1, borderTop: '1px solid #E2E8F0', textAlign: 'center' }}>
-              <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 1 }}>
-                Quick Developer Credentials:
-              </Typography>
-              <Stack direction="row" spacing={1} justifyContent="center">
-                <Chip
-                  label="Barath (Test@123)"
-                  onClick={() => setQuickDev('Barath')}
-                  size="small"
-                  variant="outlined"
-                  clickable
-                />
-                <Chip
-                  label="Rishabh (Test@123)"
-                  onClick={() => setQuickDev('Rishabh')}
-                  size="small"
-                  variant="outlined"
-                  clickable
-                />
-              </Stack>
-            </Box>
           </Stack>
         </CardContent>
       </Card>

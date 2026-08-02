@@ -171,7 +171,6 @@ export default function Dashboard() {
                     label="Plan Title (Mandatory)"
                     fullWidth
                     required
-                    placeholder="e.g. User Authentication & Password Reset Flow"
                     {...register('title', { required: 'Title is required' })}
                     error={!!errors.title}
                     helperText={errors.title?.message}
@@ -182,7 +181,6 @@ export default function Dashboard() {
                     multiline
                     rows={2}
                     fullWidth
-                    placeholder="Brief description of the feature scope, objective, or module..."
                     {...register('description')}
                   />
 
@@ -192,7 +190,6 @@ export default function Dashboard() {
                     rows={3}
                     fullWidth
                     required
-                    placeholder="As a user, I want to reset my password via email, so that I can regain account access securely."
                     {...register('requirement', { required: 'Requirement is required' })}
                     error={!!errors.requirement}
                     helperText={errors.requirement?.message}
@@ -208,7 +205,7 @@ export default function Dashboard() {
                           <TextField
                             fullWidth
                             size="small"
-                            placeholder={`AC ${index + 1}: e.g. Reset link must expire after 30 minutes`}
+                            label={`AC ${index + 1}`}
                             {...register(`acceptanceCriteria.${index}.value` as const, {
                               required: index === 0 ? 'At least one criterion is required' : false,
                             })}
@@ -230,7 +227,6 @@ export default function Dashboard() {
                     rows={3}
                     fullWidth
                     required
-                    placeholder="Added AuthController POST /api/auth/reset, EmailNotificationService, and JWT token expiry validation."
                     {...register('implementationSummary', { required: 'Implementation summary is required' })}
                     error={!!errors.implementationSummary}
                     helperText={errors.implementationSummary?.message}

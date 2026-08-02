@@ -43,8 +43,9 @@ export default function LoginPage() {
       const response = await qaApi.login(developerName.trim(), password);
       login(response.developerName, response.token);
       navigate('/');
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Invalid developer credentials';
+    } catch (err: any) {
+      const serverError = err.response?.data?.error || err.response?.data?.message;
+      const message = serverError || 'Invalid developer credentials. Please check developer name and password.';
       setError(message);
     } finally {
       setLoading(false);

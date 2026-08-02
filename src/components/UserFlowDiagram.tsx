@@ -19,19 +19,20 @@ export default function UserFlowDiagram({ flows }: UserFlowDiagramProps) {
             <Paper
               elevation={0}
               sx={{
-                px: 3,
+                px: { xs: 2, sm: 3 },
                 py: 1.5,
                 bgcolor: 'primary.main',
                 color: 'primary.contrastText',
                 borderRadius: 2,
                 display: 'inline-block',
-                minWidth: 200,
+                maxWidth: '100%',
+                wordBreak: 'break-word',
               }}
             >
-              <Typography variant="body1">{step}</Typography>
+              <Typography variant="body2" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>{step}</Typography>
             </Paper>
             {index < flows.length - 1 && (
-              <ArrowDownwardIcon sx={{ my: 0.5, color: 'text.secondary' }} />
+              <Box display="block"><ArrowDownwardIcon sx={{ my: 0.5, color: 'text.secondary' }} /></Box>
             )}
           </Box>
         ))}

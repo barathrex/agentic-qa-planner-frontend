@@ -216,7 +216,7 @@ export default function QaPlanPage() {
               Developer: <strong>{plan.developerName || 'Barath'}</strong> | Created: {plan.createdDate ? new Date(plan.createdDate).toLocaleDateString() : 'Today'}
             </Typography>
           </Box>
-        </Box>
+        </Stack>
         <Stack direction="row" spacing={1.5}>
           <Button variant="outlined" color="info" startIcon={<PictureAsPdfIcon />} onClick={handleDownloadPdf}>
             Download PDF

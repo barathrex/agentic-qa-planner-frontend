@@ -15,7 +15,6 @@ import {
   Backdrop,
   Tabs,
   Tab,
-  InputAdornment,
   Table,
   TableBody,
   TableCell,
@@ -28,7 +27,7 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import SearchIcon from '@mui/icons-material/Search';
+
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import PostAddIcon from '@mui/icons-material/PostAdd';
@@ -52,7 +51,7 @@ export default function Dashboard() {
   const [tabIndex, setTabIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [plans, setPlans] = useState<QaPlan[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+
   const [plansLoading, setPlansLoading] = useState(false);
 
   const { register, control, handleSubmit, formState: { errors }, reset } = useForm<FormValues>({
@@ -81,9 +80,9 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (tabIndex === 1) {
-      fetchPlans(searchQuery);
+      fetchPlans();
     }
-  }, [tabIndex, searchQuery]);
+  }, [tabIndex]);
 
   const onSubmit = async (data: FormValues) => {
     const criteria = data.acceptanceCriteria.map((c) => c.value.trim()).filter(Boolean);
@@ -117,7 +116,7 @@ export default function Dashboard() {
     try {
       await qaApi.deletePlan(id);
       toast.success('QA plan deleted');
-      fetchPlans(searchQuery);
+      fetchPlans();
     } catch {
       toast.error('Failed to delete QA plan');
     }
@@ -256,20 +255,6 @@ export default function Dashboard() {
             <Typography variant="h6" fontWeight={700}>
               My QA Plans ({plans.length})
             </Typography>
-            <TextField
-              size="small"
-              placeholder="Search by title, description, or date..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              sx={{ width: { xs: '100%', sm: 320 } }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon color="action" />
-                  </InputAdornment>
-                ),
-              }}
-            />
           </Stack>
 
           {plansLoading ? (

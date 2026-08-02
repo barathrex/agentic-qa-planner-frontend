@@ -2,40 +2,45 @@ import { createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
   palette: {
-    mode: 'dark',
+    mode: 'light',
     primary: {
-      main: '#6366f1',
-      light: '#818cf8',
-      dark: '#4f46e5',
+      main: '#2563EB', // Enterprise Primary Blue
+      light: '#3B82F6',
+      dark: '#1D4ED8',
+      contrastText: '#FFFFFF',
     },
     secondary: {
-      main: '#ec4899',
-      light: '#f472b6',
-      dark: '#db2777',
+      main: '#475569',
+      light: '#64748B',
+      dark: '#334155',
     },
     background: {
-      default: '#0f172a',
-      paper: '#1e293b',
+      default: '#F8FAFC', // Crisp Slate Background
+      paper: '#FFFFFF',   // Pure White Cards
     },
     text: {
-      primary: '#f8fafc',
-      secondary: '#94a3b8',
+      primary: '#1E293B',
+      secondary: '#64748B',
     },
     success: {
-      main: '#10b981',
+      main: '#10B981',
     },
     warning: {
-      main: '#f59e0b',
+      main: '#F59E0B',
     },
     error: {
-      main: '#ef4444',
+      main: '#EF4444',
     },
   },
   typography: {
-    fontFamily: '"Outfit", "Inter", "Roboto", sans-serif',
+    fontFamily: '"Poppins", "Inter", "Helvetica", "Arial", sans-serif',
     h4: {
       fontWeight: 700,
       letterSpacing: '-0.02em',
+    },
+    h5: {
+      fontWeight: 600,
+      letterSpacing: '-0.01em',
     },
     h6: {
       fontWeight: 600,
@@ -45,39 +50,19 @@ const theme = createTheme({
       fontWeight: 600,
     },
   },
-  shape: { borderRadius: 16 },
+  shape: { borderRadius: 16 }, // 16px Rounded Cards & Elements
   components: {
     MuiCard: {
       styleOverrides: {
         root: {
-          backgroundImage: 'linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.8) 100%)',
-          backdropFilter: 'blur(12px)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
-          boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
-          transition: 'all 0.3s ease-in-out',
+          borderRadius: 16,
+          backgroundColor: '#FFFFFF',
+          border: '1px solid #E2E8F0',
+          boxShadow: '0 4px 20px 0 rgba(0, 0, 0, 0.05)',
+          transition: 'all 0.25s ease-in-out',
           '&:hover': {
-            borderColor: 'rgba(99, 102, 241, 0.4)',
-            boxShadow: '0 12px 40px 0 rgba(99, 102, 241, 0.15)',
-          },
-        },
-      },
-    },
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: '12px',
-          padding: '10px 24px',
-          transition: 'all 0.2s ease-in-out',
-          '&:hover': {
-            transform: 'translateY(-2px)',
-          },
-        },
-        containedPrimary: {
-          background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
-          boxShadow: '0 4px 14px 0 rgba(99, 102, 241, 0.39)',
-          '&:hover': {
-            background: 'linear-gradient(135deg, #818cf8 0%, #6366f1 100%)',
-            boxShadow: '0 6px 20px 0 rgba(99, 102, 241, 0.5)',
+            boxShadow: '0 8px 30px 0 rgba(37, 99, 235, 0.12)',
+            borderColor: '#CBD5E1',
           },
         },
       },
@@ -85,7 +70,40 @@ const theme = createTheme({
     MuiPaper: {
       styleOverrides: {
         root: {
-          backgroundImage: 'none',
+          borderRadius: 16,
+          boxShadow: '0 4px 20px 0 rgba(0, 0, 0, 0.04)',
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
+          padding: '10px 22px',
+          fontWeight: 600,
+          boxShadow: 'none',
+          transition: 'all 0.2s ease-in-out',
+          '&:hover': {
+            boxShadow: '0 4px 14px 0 rgba(37, 99, 235, 0.35)',
+            transform: 'translateY(-1px)',
+          },
+        },
+        containedPrimary: {
+          backgroundColor: '#2563EB',
+          color: '#FFFFFF',
+          '&:hover': {
+            backgroundColor: '#1D4ED8',
+          },
+        },
+      },
+    },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-root': {
+            borderRadius: 12,
+            backgroundColor: '#FFFFFF',
+          },
         },
       },
     },

@@ -56,6 +56,9 @@ export interface DuplicatePair {
 
 export interface QaPlan {
   id?: number;
+  developerName?: string;
+  title?: string;
+  description?: string;
   requirement: string;
   implementationSummary: string;
   userFlows?: string[];
@@ -81,6 +84,8 @@ export interface VersionHistory {
 }
 
 export interface GenerateRequest {
+  title: string;
+  description?: string;
   requirement: string;
   acceptanceCriteria: string[];
   implementationSummary: string;

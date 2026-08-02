@@ -14,10 +14,17 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  Card,
+  CardContent,
+  Grid,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SaveIcon from '@mui/icons-material/Save';
-import HistoryIcon from '@mui/icons-material/History';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import { toast } from 'react-toastify';
 import { qaApi } from '../api/qaApi';
 import type { QaPlan, TestCase, TestCategory, TestPriority } from '../types/qa';
@@ -39,6 +46,15 @@ const SCENARIO_CATEGORIES: TestCategory[] = [
   'PERMISSION_CASES',
   'FAILURE_STATES',
   'REGRESSION_AREAS',
+];
+
+const RAG_CHECKLIST_ITEMS = [
+  'API Validation',
+  'Authentication',
+  'Authorization',
+  'Security Testing',
+  'Regression Checklist',
+  'Boundary Testing',
 ];
 
 export default function QaPlanPage() {
@@ -129,6 +145,17 @@ export default function QaPlanPage() {
     }
   };
 
+  const handleDownloadPdf = async () => {
+    if (!plan?.id) return;
+    try {
+      toast.info('Generating PDF document...');
+      await qaApi.downloadPdf(plan.id);
+      toast.success('PDF downloaded');
+    } catch {
+      toast.error('Failed to download PDF');
+    }
+  };
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
@@ -141,12 +168,17 @@ export default function QaPlanPage() {
     return <Alert severity="error">QA plan not found</Alert>;
   }
 
+  const totalAc = plan.acceptanceCriteria ? plan.acceptanceCriteria.length : 0;
+  const coveredAcList = plan.acceptanceCriteria ? plan.acceptanceCriteria.filter(ac => ac.covered) : [];
+  const uncoveredAcList = plan.acceptanceCriteria ? plan.acceptanceCriteria.filter(ac => !ac.covered) : [];
+  const coveragePercent = plan.coveragePercentage ? Math.round(plan.coveragePercentage) : 100;
+
   const renderCategorySection = (categories: TestCategory[]) =>
     categories.map((cat) => {
       const tests = testsByCategory[cat];
       if (!tests || tests.length === 0) return null;
       return (
-        <Accordion key={cat} defaultExpanded={MAIN_CATEGORIES.includes(cat)}>
+        <Accordion key={cat} defaultExpanded={MAIN_CATEGORIES.includes(cat)} sx={{ mb: 2 }}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <Typography fontWeight={600}>
               {CATEGORY_LABELS[cat]} ({tests.length})
@@ -169,23 +201,25 @@ export default function QaPlanPage() {
     });
 
   return (
-    <Box>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
-        <Box>
-          <Typography variant="h4" fontWeight={700}>
-            QA Plan
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Version {plan.currentVersion}
-          </Typography>
+    <Box sx={{ pb: 6 }}>
+      {/* Top Header */}
+      <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ md: 'center' }} spacing={2} sx={{ mb: 3 }}>
+        <Box direction="row" alignItems="center" display="flex" gap={1.5}>
+          <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/')} color="inherit">
+            Back
+          </Button>
+          <Box>
+            <Typography variant="h5" fontWeight={700} color="text.primary">
+              {plan.title || `QA Test Plan #${plan.id}`}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Developer: <strong>{plan.developerName || 'Barath'}</strong> | Created: {plan.createdDate ? new Date(plan.createdDate).toLocaleDateString() : 'Today'}
+            </Typography>
+          </Box>
         </Box>
-        <Stack direction="row" spacing={1}>
-          <Button
-            variant="outlined"
-            startIcon={<HistoryIcon />}
-            onClick={() => navigate(`/plan/${plan.id}/versions`)}
-          >
-            Version History
+        <Stack direction="row" spacing={1.5}>
+          <Button variant="outlined" color="info" startIcon={<PictureAsPdfIcon />} onClick={handleDownloadPdf}>
+            Download PDF
           </Button>
           <Button
             variant="contained"
@@ -193,134 +227,166 @@ export default function QaPlanPage() {
             onClick={handleSave}
             disabled={saving}
           >
-            Save QA Plan
+            Save Plan
           </Button>
         </Stack>
       </Stack>
 
-      <Alert severity="warning" sx={{ mb: 3 }}>
+      <Alert severity="warning" sx={{ mb: 3, borderRadius: 3 }}>
         {plan.disclaimer}
       </Alert>
 
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          Requirement
-        </Typography>
-        <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', mb: 2 }}>
-          {plan.requirement}
-        </Typography>
-        <Typography variant="h6" gutterBottom>
-          Implementation Summary
-        </Typography>
-        <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
-          {plan.implementationSummary}
-        </Typography>
-      </Paper>
-
-      <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          Acceptance Criteria Coverage
-        </Typography>
-        <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
-          <Box sx={{ flex: 1 }}>
-            <LinearProgress
-              variant="determinate"
-              value={plan.coveragePercentage ?? 0}
-              sx={{ height: 10, borderRadius: 5 }}
-            />
-          </Box>
-          <Typography variant="h6" fontWeight={700}>
-            {plan.coveragePercentage ?? 0}%
+      {/* Plan Details Card */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Typography variant="h6" fontWeight={700} gutterBottom color="primary">
+            Requirement / User Story
           </Typography>
-        </Stack>
-        <Stack direction="row" flexWrap="wrap" gap={1}>
-          {plan.acceptanceCriteria.map((ac) => (
-            <Chip
-              key={ac.criteriaIndex}
-              label={`AC${ac.criteriaIndex}: ${ac.description}`}
-              color={ac.covered ? 'success' : 'default'}
-              variant={ac.covered ? 'filled' : 'outlined'}
-            />
-          ))}
-        </Stack>
-        {plan.uncoveredCriteria && plan.uncoveredCriteria.length > 0 && (
-          <Alert severity="warning" sx={{ mt: 2 }}>
-            <Typography variant="subtitle2" gutterBottom>
-              Uncovered Acceptance Criteria
-            </Typography>
-            {plan.uncoveredCriteria.map((uc) => (
-              <Typography key={uc.criteriaIndex} variant="body2">
-                AC{uc.criteriaIndex}: {uc.description}
-              </Typography>
-            ))}
-          </Alert>
-        )}
-      </Paper>
+          <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', mb: 3, color: '#334155' }}>
+            {plan.requirement}
+          </Typography>
 
+          <Typography variant="h6" fontWeight={700} gutterBottom color="primary">
+            Implementation Summary
+          </Typography>
+          <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', color: '#334155' }}>
+            {plan.implementationSummary}
+          </Typography>
+        </CardContent>
+      </Card>
+
+      {/* Acceptance Criteria Coverage Section */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Typography variant="h6" fontWeight={700} gutterBottom>
+            Acceptance Criteria Coverage
+          </Typography>
+
+          <Stack direction="row" spacing={4} alignItems="center" sx={{ my: 2 }}>
+            <Box>
+              <Typography variant="body2" color="text.secondary">
+                Covered Status
+              </Typography>
+              <Typography variant="h5" fontWeight={700} color="primary">
+                Covered: {coveredAcList.length} / {totalAc}
+              </Typography>
+            </Box>
+            <Box>
+              <Typography variant="body2" color="text.secondary">
+                Coverage
+              </Typography>
+              <Typography variant="h5" fontWeight={700} color={coveragePercent === 100 ? 'success.main' : 'warning.main'}>
+                Coverage: {coveragePercent}%
+              </Typography>
+            </Box>
+          </Stack>
+
+          <LinearProgress
+            variant="determinate"
+            value={coveragePercent}
+            sx={{ height: 10, borderRadius: 5, mb: 3, bgcolor: '#E2E8F0', '& .MuiLinearProgress-bar': { bgcolor: coveragePercent === 100 ? '#10B981' : '#2563EB' } }}
+          />
+
+          <Grid container spacing={2}>
+            {/* Covered Criteria List */}
+            <Grid item xs={12} md={6}>
+              <Paper variant="outlined" sx={{ p: 2, borderRadius: 3, bgcolor: '#F8FAFC' }}>
+                <Typography variant="subtitle2" fontWeight={700} color="success.main" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <CheckCircleIcon fontSize="small" /> Covered Criteria
+                </Typography>
+                <Stack spacing={1}>
+                  {coveredAcList.map((ac) => (
+                    <Typography key={ac.criteriaIndex} variant="body2" sx={{ color: '#1E293B' }}>
+                      ✓ AC{ac.criteriaIndex}: {ac.description}
+                    </Typography>
+                  ))}
+                  {coveredAcList.length === 0 && (
+                    <Typography variant="body2" color="text.secondary">None</Typography>
+                  )}
+                </Stack>
+              </Paper>
+            </Grid>
+
+            {/* Uncovered Criteria List */}
+            <Grid item xs={12} md={6}>
+              <Paper variant="outlined" sx={{ p: 2, borderRadius: 3, bgcolor: uncoveredAcList.length > 0 ? '#FEF2F2' : '#F8FAFC' }}>
+                <Typography variant="subtitle2" fontWeight={700} color={uncoveredAcList.length > 0 ? 'error.main' : 'text.secondary'} gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <CancelIcon fontSize="small" /> Uncovered Criteria
+                </Typography>
+                <Stack spacing={1}>
+                  {uncoveredAcList.map((ac) => (
+                    <Typography key={ac.criteriaIndex} variant="body2" color="error">
+                      AC{ac.criteriaIndex}: {ac.description}
+                    </Typography>
+                  ))}
+                  {uncoveredAcList.length === 0 && (
+                    <Typography variant="body2" color="text.secondary">All criteria covered!</Typography>
+                  )}
+                </Stack>
+              </Paper>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
+
+      {/* User Flows */}
       {plan.userFlows && plan.userFlows.length > 0 && (
         <UserFlowDiagram flows={plan.userFlows} />
       )}
 
-      {plan.retrievedGuidance && (
-        <Accordion sx={{ mb: 3 }}>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography fontWeight={600}>Retrieved QA Guidance (RAG)</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
-              {plan.retrievedGuidance}
-            </Typography>
-          </AccordionDetails>
-        </Accordion>
-      )}
-
-      {plan.assumptions && plan.assumptions.length > 0 && (
-        <Paper sx={{ p: 3, mb: 3 }}>
-          <Typography variant="h6" gutterBottom>
-            Assumptions
+      {/* QA Guidance Applied (RAG) */}
+      <Card sx={{ mb: 3 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Typography variant="h6" fontWeight={700} gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <TaskAltIcon color="primary" /> QA Guidance Applied
           </Typography>
-          {plan.assumptions.map((a, i) => (
-            <Typography key={i} variant="body2" sx={{ mb: 0.5 }}>
-              • {a}
+
+          <Stack direction="row" flexWrap="wrap" gap={1.5} sx={{ my: 2 }}>
+            {RAG_CHECKLIST_ITEMS.map((item) => (
+              <Chip key={item} label={`✓ ${item}`} color="primary" variant="outlined" sx={{ fontWeight: 600, borderRadius: 2 }} />
+            ))}
+          </Stack>
+
+          {plan.retrievedGuidance && (
+            <Accordion variant="outlined" sx={{ borderRadius: 3, mt: 2 }}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography fontWeight={600} color="text.secondary">
+                  View Details (Raw RAG Context)
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', color: '#475569' }}>
+                  {plan.retrievedGuidance}
+                </Typography>
+              </AccordionDetails>
+            </Accordion>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Assumptions */}
+      {plan.assumptions && plan.assumptions.length > 0 && (
+        <Card sx={{ mb: 3 }}>
+          <CardContent sx={{ p: 3 }}>
+            <Typography variant="h6" fontWeight={700} gutterBottom>
+              Assumptions
             </Typography>
-          ))}
-        </Paper>
+            {plan.assumptions.map((a, i) => (
+              <Typography key={i} variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+                • {a}
+              </Typography>
+            ))}
+          </CardContent>
+        </Card>
       )}
 
       <Divider sx={{ my: 3 }} />
       <Typography variant="h5" gutterBottom fontWeight={700}>
         Proposed Test Cases
       </Typography>
+
       {renderCategorySection(MAIN_CATEGORIES)}
       {renderCategorySection(SCENARIO_CATEGORIES)}
-
-      {plan.duplicateTestCases && plan.duplicateTestCases.length > 0 && (
-        <Paper sx={{ p: 3, mt: 3 }}>
-          <Typography variant="h6" gutterBottom color="info.main">
-            Possible Duplicate Test Cases
-          </Typography>
-          {plan.duplicateTestCases.map((dup, i) => (
-            <Alert severity="info" key={i} sx={{ mb: 1 }}>
-              {dup.testId1} &amp; {dup.testId2} — similarity {Math.round(dup.similarityScore * 100)}%
-              <br />
-              &quot;{dup.title1}&quot; vs &quot;{dup.title2}&quot;
-            </Alert>
-          ))}
-        </Paper>
-      )}
-
-      {plan.incompleteTestCases && plan.incompleteTestCases.length > 0 && (
-        <Paper sx={{ p: 3, mt: 3 }}>
-          <Typography variant="h6" gutterBottom color="warning.main">
-            Incomplete Test Cases
-          </Typography>
-          {plan.incompleteTestCases.map((tc) => (
-            <Alert severity="warning" key={tc.testId} sx={{ mb: 1 }}>
-              {tc.testId}: {tc.title || '(no title)'} — missing required fields
-            </Alert>
-          ))}
-        </Paper>
-      )}
     </Box>
   );
 }

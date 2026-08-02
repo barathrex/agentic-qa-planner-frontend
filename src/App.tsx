@@ -1,17 +1,43 @@
-import { Routes, Route } from 'react-router-dom';
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import QaPlanPage from './pages/QaPlanPage';
-import VersionHistoryPage from './pages/VersionHistoryPage';
+import LoginPage from './pages/LoginPage';
+import { AuthProvider, useAuth } from './context/AuthContext';
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { token } = useAuth();
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  return <>{children}</>;
+}
 
 export default function App() {
   return (
-    <Layout>
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/plan/:id" element={<QaPlanPage />} />
-        <Route path="/plan/:id/versions" element={<VersionHistoryPage />} />
-      </Routes>
-    </Layout>
+    <AuthProvider>
+      <Layout>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/plan/:id"
+            element={
+              <ProtectedRoute>
+                <QaPlanPage />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </Layout>
+    </AuthProvider>
   );
 }
